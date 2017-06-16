@@ -1,0 +1,30 @@
+#!/bin/bash
+
+BOLD=$(tput bold)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+GREY=$(tput setaf 7)
+YELLOW=$(tput setaf 11)
+BLUE=$(tput setaf 12)
+WHITE=$(tput setaf 15)
+RESET=$(tput sgr0)
+
+n='[0-9]+'
+
+mvn $@ | sed \
+  -e "s/^\(\[INFO\]\)\(.*\)$/${GREY}\1\2${RESET}/g" \
+  -e "s/\(\[INFO\]\ \-\-\-\ .*\)/${BLUE}\1${RESET}/g" \
+  -e "s/\(\[INFO\]\ \[.*\)/${RESET}\1${RESET}/g" \
+  -e "s/\(\[INFO\]\ \)\(BUILD SUCCESS\)/\1${GREEN}\2${RESET}/g" \
+  -e "s/\(\[INFO\]\ \)\(BUILD FAILURE\)/\1${RED}\2${RESET}/g" \
+  -e "s/\(\[WARNING\].*\)/${YELLOW}\1${RESET}/g" \
+  -e "s/\(\[ERROR\]\)/${RED}\1${RESET}/g" \
+  -e "s/\(Exception in thread \".*\" \)\(.*\)/\1${RED}\2${RESET}/g" \
+  -e "s/\(SUCCESS \)\[/${RESET}${GREEN}\1${RESET}\[/g" \
+  -e "s/\(FAILURE \)\[/${RESET}${RED}\1${RESET}\[/g" \
+  -e "s/\(Caused by: \)\([^:\t ]*\)/\1${RED}\2${RESET}/g" \
+  -e "s/\(ERROR\ \[.*\)/${RED}\1${RESET}/g" \
+  -e "s/\(@.*line [0-9]\+, column [0-9]\+\)/$BOLD$WHITE\1${RESET}/g" |
+  sed -E -e "s/^(Tests run: $n).*Failures: ($n).*Errors: ($n).*Skipped: ($n)$/${GREEN}\1${RESET}, Failures: ${RED}\2${RESET}, Errors: ${RED}\3${RESET}, Skipped: ${YELLOW}\4${RESET}/g"
+
+echo -ne ${RESET}
