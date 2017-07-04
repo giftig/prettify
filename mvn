@@ -5,7 +5,7 @@ RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 GREY=$(tput setaf 7)
 YELLOW=$(tput setaf 3)
-BLUE=$(tput setaf 19)
+BLUE=$(tput setaf 6)
 WHITE=$(tput setaf 15)
 RESET=$(tput sgr0)
 
