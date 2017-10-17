@@ -11,7 +11,26 @@ RESET=$(tput sgr0)
 
 n='[0-9]+'
 
-mvn $@ | sed \
+# PATCH SED COMMAND BASED ON WHETHER WE HAVE A GOOD SED AVAILABLE
+# OSX sed is crap and doesn't support -u
+SED_COMMAND='sed'
+
+if which gsed &> /dev/null; then
+  SED_COMMAND='gsed -u'
+fi
+
+# OSX sed doesn't even support the --version flag
+SEDV=$(sed --version 2> /dev/null)
+
+if [[ "$?" == 0 ]]; then
+  # Just being the GNU sed is probably enough
+  if echo "$SEDV" | head -n 1 | grep -i gnu &> /dev/null; then
+    SED_COMMAND='sed -u'
+  fi
+fi
+
+# TODO: Make this consistent (use -E in both seds)
+mvn $@ | $SED_COMMAND \
   -e "s/^\(\[INFO\]\)\(.*\)$/${GREY}\1\2${RESET}/g" \
   -e "s/\(\[INFO\]\ \-\-\-\ .*\)/${BLUE}\1${RESET}/g" \
   -e "s/\(\[INFO\]\ \[.*\)/${RESET}\1${RESET}/g" \
@@ -25,6 +44,6 @@ mvn $@ | sed \
   -e "s/\(Caused by: \)\([^:\t ]*\)/\1${RED}\2${RESET}/g" \
   -e "s/\(ERROR\ \[.*\)/${RED}\1${RESET}/g" \
   -e "s/\(@.*line [0-9]\+, column [0-9]\+\)/$BOLD$WHITE\1${RESET}/g" |
-  sed -E -e "s/^(Tests run: $n).*Failures: ($n).*Errors: ($n).*Skipped: ($n)$/${GREEN}\1${RESET}, Failures: ${RED}\2${RESET}, Errors: ${RED}\3${RESET}, Skipped: ${YELLOW}\4${RESET}/g"
+  $SED_COMMAND -E -e "s/^(Tests run: $n).*Failures: ($n).*Errors: ($n).*Skipped: ($n)$/${GREEN}\1${RESET}, Failures: ${RED}\2${RESET}, Errors: ${RED}\3${RESET}, Skipped: ${YELLOW}\4${RESET}/g"
 
 echo -ne ${RESET}
