@@ -44,6 +44,8 @@ mvn $@ | $SED_COMMAND \
   -e "s/\(Caused by: \)\([^:\t ]*\)/\1${RED}\2${RESET}/g" \
   -e "s/\(ERROR\ \[.*\)/${RED}\1${RESET}/g" \
   -e "s/\(@.*line [0-9]\+, column [0-9]\+\)/$BOLD$WHITE\1${RESET}/g" |
-  $SED_COMMAND -E -e "s/^(Tests run: $n).*Failures: ($n).*Errors: ($n).*Skipped: ($n)$/${GREEN}\1${RESET}, Failures: ${RED}\2${RESET}, Errors: ${RED}\3${RESET}, Skipped: ${YELLOW}\4${RESET}/g"
+  $SED_COMMAND -E \
+    -e '/^[a-z\.]*\.path.*$/d' \
+    -e "s/^(Tests run: $n).*Failures: ($n).*Errors: ($n).*Skipped: ($n)$/${GREEN}\1${RESET}, Failures: ${RED}\2${RESET}, Errors: ${RED}\3${RESET}, Skipped: ${YELLOW}\4${RESET}/g"
 
 echo -ne ${RESET}
